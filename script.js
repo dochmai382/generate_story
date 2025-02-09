@@ -53,7 +53,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("처리시작", new Date(), "모델:", modelName);
         try {
           submitButton.disabled = true;
-          spinner.classList.remove("d-none"); // Show spinner
+          spinner.classList.remove("d-none"); // 스피너 표시
+          form.appendChild(spinner); // form 아래에 스피너 추가
 
           const response = await axios.post(
             url,
@@ -99,7 +100,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 괴담 매뉴얼 만들기
     const generateManual = async (story, amount) => {
-      const prompt = `너는 소설가야. ${story}에서 탈출할 수 있는 안내문을 ${amount}개에 맞춰 주의사항 등을 넣어서 작성해줘. 리스트형태로. 그 중 중요한 단어들을 빨간색으로 표시해줘. 앞에 미사여구 없이`;
+      const prompt = `너는 소설가야. ${story}에서 탈출할 수 있는 안내문을 ${amount}개에 맞춰 주의사항 등을 넣어서 작성해줘. 리스트형태로. 그 중 중요한 단어들을 빨간색으로 표시해줘. 앞에 미사여구 없이. 제목은 <h2>로`;
       return await callAI(prompt);
     }; // generateManual
     const manual = await generateManual(story, amount);

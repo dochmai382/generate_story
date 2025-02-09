@@ -1,20 +1,24 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  const box = document.querySelector("#box");
+
   const add = (title, result) => {
-    const box = document.querySelector("#box");
     const div = document.createElement("div");
-    const h3 = document.createElement("h3");
-    h3.textContent = title;
-    div.appendChild(h3);
     const p = document.createElement("p");
-    p.textContent = result;
+    p.innerHTML = marked.parse(result);
     box.appendChild(div.appendChild(p));
   };
 
   const form = document.querySelector("#controller");
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    box.innerHTML = "";
     const formData = new FormData(form);
+    const submitButton = document.querySelector("#submitButton");
 
+    if (!formData.get("place")) {
+      alert("장소를 입력해주세요");
+      return;
+    }
     // console.log(formData.get("place"), formData.get("amount"));
     const [place, amount] = [...formData.keys()].map((key) =>
       formData.get(key)
@@ -31,12 +35,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     ) => {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:${action}?key=${GEMINI_API_KEY}`;
       console.log("처리시작", new Date(), "모델:", modelName);
-      const response = await axios.post(
-        url,
-        { contents: [{ parts: [{ text: prompt }] }], generationConfig },
-        { headers: { "Content-Type": "application/json" } }
-      );
-      return response.data.candidates[0].content.parts[0].text;
+      try {
+        submitButton.disabled = true;
+
+        const response = await axios.post(
+          url,
+          { contents: [{ parts: [{ text: prompt }] }], generationConfig },
+          { headers: { "Content-Type": "application/json" } }
+        );
+        return response.data.candidates[0].content.parts[0].text;
+      } catch {
+      } finally {
+        submitButton.disabled = false;
+      }
     }; //callAI
 
     // 괴담 생성
@@ -58,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 사례 만들기 - thinking
     const generateRecord = async (story, manual) => {
       const modelName = "gemini-2.0-flash-thinking-exp-01-21";
-      const prompt = `너는 소설가야. ${manual}을 참고해서 ${story}에서 탈출한 성공과 실패 사례를 합쳐서 1-5개 정도 평문으로 작성해줘`;
+      const prompt = `너는 소설가야. ${manual}을 참고해서 ${story}에서 탈출한 성공과 실패 사례를 합쳐서 5개 정도 탐사일지 형태로 평문으로 작성해줘`;
       return await callAI(prompt, modelName);
     }; // generateRecord
     const recordList = await generateRecord(story, manual);

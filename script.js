@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const box = document.querySelector("#box");
   const form = document.querySelector("#controller");
+  // const submitButton = document.querySelector(".submitButton");
   const submitButton = document.querySelector("#submitButton");
   const spinner = document.querySelector("#spinner");
   const GEMINI_API_KEY = localStorage.getItem("GEMINI_API_KEY");
@@ -86,7 +87,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 괴담 생성
   const generateStory = async (input) => {
-    const prompt = `너는 소설가야. ${input}에서 발생하는 나폴리탄 괴담을 만들거야. 진입조건, 디테일을 넣어서 100자 이내로 평문으로 작성해줘.`;
+    const prompt = `너는 소설가야. ${input}에서 발생하는 나폴리탄 괴담을 만들어줘. 너무 나폴리탄에 종속되지 말아줘. 진입조건, 디테일을 넣어서 100자 이내로 평문으로 작성해줘.`;
     return await callAI(prompt);
   };
 
@@ -122,12 +123,72 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const recordList = await generateRecord(story, manual);
       processResult("탐사일지", recordList);
+
+      newForm();
     } catch (error) {
       console.error("Error:", error);
       alert("AI 호출 중 오류가 발생했습니다.");
     }
   };
   form.addEventListener("submit", handleFormSubmit);
+
+  // 상황 설정해보기
+  const ifMeForm = document.createElement("form");
+  const newForm = () => {
+    ifMeForm.id = "ifMeForm";
+    const textarea = document.createElement("textarea");
+    textarea.name = "ifMeText";
+    textarea.placeholder = "탐사 상황 설정해세요";
+    const ifMeButton = document.createElement("button");
+    ifMeButton.id = "ifMeBtn";
+    // ifMeButton.classList.add("submitButton"); // 기존 클래스는 그대로 두고 submitButton 클래스만 추가
+    ifMeButton.textContent = "탐사하기";
+
+    const span = document.createElement("span");
+    span.id = "exploringMessage";
+    span.classList.add("d-done");
+    span.textContent = "탐사 중...";
+
+    ifMeForm.appendChild(textarea);
+    ifMeForm.appendChild(ifMeButton);
+    ifMeForm.appendChild(span);
+
+    box.appendChild(ifMeForm);
+  };
+
+  const generateIfMe = async (story, manual, text) => {
+    const modelName = "gemini-2.0-flash-thinking-exp-01-21";
+    const prompt = `너는 소설가야. ${story}와 ${manual}을 참고해서 ${text}의 경우 탈출 성공/실패 여부를 일기느낌의 평문으로 작성해줘.앞에 미사여구 없이`;
+    return await callAI(prompt, modelName);
+  };
+
+  const handleIfMe = async (event) => {
+    event.preventDefault();
+
+    const ifMeButton = ifMeForm.querySelector("#ifMeBtn");
+    const exploringMessage = document.querySelector("#exploringMessage");
+    ifMeButton.disabled = true; // 버튼 비활성화.. 왜 안되지;;;;
+    exploringMessage.classList.remove("d-none"); // "탐사 중" 메시지 표시
+
+    const formData = new FormData(ifMeForm);
+    const ifMeText = formData.get("ifMeText");
+
+    const results = document.querySelector("#box").children;
+    // console.log("results", results);
+    const story = results[0].textContent;
+    const manual = results[1].textContent;
+
+    try {
+      const ifMe = await generateIfMe(story, manual, ifMeText);
+      processResult("나의 일지", ifMe);
+    } catch (error) {
+      console.log("Error", error);
+    } finally {
+      ifMeButton.disabled = false;
+      exploringMessage.classList.add("d-none"); // "탐사 중" 메시지 숨김
+    }
+  };
+  ifMeForm.addEventListener("submit", handleIfMe);
 }); // DOMContentLoaded
 
 /**

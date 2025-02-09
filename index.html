@@ -22,10 +22,17 @@
   <body>
     <div class="container mt-5">
       <h1>괴담탐사일지</h1>
-      <p style="font-size: x-small">
-        백덕수님 소설[괴담에 떨어져도 출근을 해야 하는구나] 모티브로 해서
-        gemini와 놀기
-      </p>
+      <div>
+        <p style="font-size: x-small">
+          백덕수님 소설
+          <strong>[괴담에 떨어져도 출근을 해야 하는구나]</strong> 많관부<br />
+        </p>
+        <p>
+          1. 괴담이 발생하는 장소와 규칙의 수를 정해주세요<br />
+          2. 괴담(내용, 매뉴얼, 탐사일지)를 읽고, 괴담에 떨어졌을 때 나라면
+          어떻게 할지 상황을 정해주세요
+        </p>
+      </div>
       <form id="controller">
         <div class="form-group row">
           <label for="location" class="col-sm-2 col-form-label">장소</label>
@@ -40,7 +47,7 @@
           </div>
         </div>
         <div class="form-group row">
-          <label for="amount" class="col-sm-2 col-form-label">개수</label>
+          <label for="amount" class="col-sm-2 col-form-label">규칙</label>
           <div class="col-sm-10">
             <div class="form-check form-check-inline">
               <input
@@ -77,7 +84,9 @@
         </div>
         <div class="form-group row">
           <div class="col-sm-10 offset-sm-2">
-            <button id="submitButton" class="btn btn-danger">생성</button>
+            <button id="submitButton" class="btn btn-danger submitButton">
+              생성
+            </button>
             <div id="spinner" class="d-none">
               <div class="spinner-border text-danger" role="status">
                 <span class="visually-hidden">Loading...</span>

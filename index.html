@@ -4,17 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>괴담출 묵혔다 볼걸...</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
   </head>
   <body>
-    <main>
+    <main class="container my-5">
       <section>
         <h2>어둠 탐사일지</h2>
         <p>백덕수님 소설 [괴담출]을 모티브로 해서 gemini와 놀기</p>
         <form id="controller">
           <section>
-            <label>
+            <label class="form-label">
               장소:
-              <input type="text" name="place" />
+              <input type="text" name="place" class="form-control" />
             </label>
           </section>
           <section>
@@ -23,17 +30,25 @@
 			</label> -->
           </section>
           <section>
-            <label>
+            <label class="form-label">
               수칙 개수:
               <input type="radio" name="amount" value="5" checked />5개
               <input type="radio" name="amount" value="7" />7개
               <input type="radio" name="amount" value="10" />10개
             </label>
           </section>
-          <section>
-            <button id="submitButton">생성</button>
+          <section class="mb-3">
+            <button id="submitButton" class="btn btn-primary">생성</button>
           </section>
         </form>
+
+        <!-- Spinner -->
+        <div id="spinner" class="d-none">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
         <div id="box"></div>
       </section>
     </main>
@@ -42,6 +57,12 @@
 
     <!-- axios cdn -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Bootstrap JS (Optional, but needed for some features like dropdowns) -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+      crossorigin="anonymous"
+    ></script>
     <script src="script.js"></script>
   </body>
 </html>

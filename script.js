@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     box.innerHTML = "";
     const formData = new FormData(form);
     const submitButton = document.querySelector("#submitButton");
+    const spinner = document.querySelector("#spinner");
 
     if (!formData.get("place")) {
       alert("장소를 입력해주세요");
@@ -37,6 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.log("처리시작", new Date(), "모델:", modelName);
       try {
         submitButton.disabled = true;
+        spinner.classList.remove("d-none"); // Show spinner
 
         const response = await axios.post(
           url,
@@ -44,9 +46,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           { headers: { "Content-Type": "application/json" } }
         );
         return response.data.candidates[0].content.parts[0].text;
-      } catch {
+      } catch (error) {
+        console.error("Error calling AI:", error);
+        alert("AI 호출 중 오류가 발생했습니다."); // User-friendly error message
       } finally {
         submitButton.disabled = false;
+        spinner.classList.add("d-none"); // Hide spinner
       }
     }; //callAI
 

@@ -32,27 +32,61 @@ document.addEventListener("DOMContentLoaded", async () => {
       prompt,
       modelName = "gemini-2.0-pro-exp-02-05",
       action = "generateContent",
-      generationConfig = {}
+      generationConfig = {},
+      autoSearch = true
     ) => {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:${action}?key=${GEMINI_API_KEY}`;
-      console.log("처리시작", new Date(), "모델:", modelName);
-      try {
-        submitButton.disabled = true;
-        spinner.classList.remove("d-none"); // Show spinner
+      // 재시도에 사용할 모델풀
+      const modelPool = new Set([
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash-lite-preview-02-05",
+        "gemini-1.5-flash",
+        "gemini-1.5-flash-8b",
+        "gemini-1.5-pro",
+        "gemini-2.0-pro-exp-02-05",
+        "gemini-2.0-flash-thinking-exp-01-21",
+        "gemini-2.0-flash-exp",
+        "gemini-exp-1206",
+      ]);
+      // 무한 재시도 루프
+      while (true) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:${action}?key=${GEMINI_API_KEY}`;
+        console.log("처리시작", new Date(), "모델:", modelName);
+        try {
+          submitButton.disabled = true;
+          spinner.classList.remove("d-none"); // Show spinner
 
-        const response = await axios.post(
-          url,
-          { contents: [{ parts: [{ text: prompt }] }], generationConfig },
-          { headers: { "Content-Type": "application/json" } }
-        );
-        return response.data.candidates[0].content.parts[0].text;
-      } catch (error) {
-        console.error("Error calling AI:", error);
-        alert("AI 호출 중 오류가 발생했습니다."); // User-friendly error message
-      } finally {
-        submitButton.disabled = false;
-        spinner.classList.add("d-none"); // Hide spinner
-      }
+          const response = await axios.post(
+            url,
+            { contents: [{ parts: [{ text: prompt }] }], generationConfig },
+            { headers: { "Content-Type": "application/json" } }
+          );
+          return response.data.candidates[0].content.parts[0].text;
+        } catch (error) {
+          console.error("Error calling AI:", error);
+          // alert("AI 호출 중 오류가 발생했습니다.");
+          if (
+            error.response &&
+            error.response.status === 429 // 요청 제한 상태면
+          ) {
+            if (!autoSearch || modelPool.size === 0) {
+              throw new Error("모델 재시도 불가: 요청 거부됨.");
+            }
+            // 모델 풀에서 새로운 모델 선택
+            const newModelName = modelPool.keys().next().value;
+            console.log(
+              `모델 ${modelName}에서 429 발생, 모델 ${newModelName}로 전환 후 재시도!`
+            );
+            modelName = newModelName;
+            modelPool.delete(newModelName);
+          }
+          // 4초 후 재시도
+          await new Promise((resolve) => setTimeout(resolve, 4000));
+        } finally {
+          console.log("처리 종료", new Date());
+          submitButton.disabled = false;
+          spinner.classList.add("d-none"); // Hide spinner
+        }
+      } // while
     }; //callAI
 
     // 괴담 생성
